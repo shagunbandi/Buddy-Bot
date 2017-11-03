@@ -1,1 +1,1 @@
-web: gunicorn GERTY-chatbot:app
+web: gunicorn Buddy-Chatbot:app
