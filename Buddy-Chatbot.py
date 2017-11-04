@@ -1,6 +1,8 @@
 import os, sys
 from flask import Flask, request
 from pymessenger import Bot
+from utils import wit_response
+
 
 app = Flask(__name__)
 
@@ -23,6 +25,26 @@ def log(message):
     sys.stdout.flush()
 
 
+def get_response(messaging_text):
+    response = None
+    what, value = wit_response(messaging_text)
+    if value:
+        if what == 'get_my_location':
+            response = 'Cool, Now I know you are from {}'.format(value)
+        elif what == 'news':
+            response = 'Bringin News with the category {} right away'.format(value)
+        else:
+            response = 'Could not get that... sorry'
+    else:
+        if what == 'get_my_location':
+            response = 'I see, you want to tell me something about location, sorry please use simpler language'
+        elif what == 'news':
+            response = 'Bringing you news right away'
+        else:
+            response = 'Could not get that... sorry'
+    return response
+
+
 @app.route('/', methods=['POST'])
 def webhook():
     data = request.get_json()
@@ -39,8 +61,10 @@ def webhook():
                     else:
                         messaging_text = 'no text'
 
-                    response = messaging_text
+                        response = get_response(messaging_text)
+
                     bot.send_text_message(sender_id, response)
+
     return "ok", 200
 
 
