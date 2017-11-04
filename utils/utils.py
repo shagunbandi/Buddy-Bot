@@ -1,14 +1,12 @@
 from wit import Wit
 import json
 
-access_token = 'XN6J7Y5N3ILXII66ARXNOWDEIOJ3JQ3R'
+access_token = 'STJOPOYXOVUVBD2QGW3GQ6T4CKFLAFOT'
 
 client = Wit(access_token=access_token)
-message = 'let it be'
 
 
 def get_json(json_thing, sort=True, indents=4):
-    json_thing = json_thing.decode('utf-8')
     if type(json_thing) is str:
         return json.dumps(json.loads(json_thing), sort_keys=sort, indent=indents)
     else:
@@ -17,23 +15,29 @@ def get_json(json_thing, sort=True, indents=4):
 
 def wit_response(message):
     response = client.message(msg=message)
-    what = None
-    value = None
-    try:
-        what = response['entities']['intent'][0]['value']
-    except:
-        pass
-    if what == 'get_my_location':
+    # print(get_json(response))
+    type = None
+    sub_type = None
+    entities = response['entities']
+    if len(entities):
+        print('len satisfied')
+        print(get_json(entities))
+        # type = entities['type'][0]['value']
+        # sub_type = entities['newstype'][0]['value']
         try:
-            value = response['entities']['location'][0]['value']
+            type = entities['type'][0]['value']
+            print('type found {}'.format(type))
+            if type == 'news':
+                try:
+                    sub_type = entities['newstype'][0]['value']
+                    print('subtype found {}'.format(sub_type))
+                except:
+                    pass
         except:
+            print('yaha')
             pass
-    elif what == 'news':
-        try:
-            value = response['entities']['category'][0]['value']
-        except:
-            pass
-    elif what == 'general':
-        value = None
+    return type, sub_type
 
-    return what, value
+
+# message = 'Show me sports news'
+# wit_response(message)

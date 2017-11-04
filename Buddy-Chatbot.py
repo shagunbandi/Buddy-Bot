@@ -27,13 +27,14 @@ def log(message):
 
 
 def get_response_and_type(messaging_text):
-    what, value = wit_response(messaging_text)
-
+    res_type, sub_type = wit_response(messaging_text)
+    print(res_type, sub_type)
+    # response = 'Sorry', 'text'
     response = {
-        'get_my_location': reply.location(value),
-        'news': reply.news(value),
-        'general': reply.general(value)
-    }.get(what, ('Sorry', 'text'))
+        'location': reply.location('Kharagpur'),
+        'news': reply.news(sub_type),
+        'general': reply.general(None)
+    }.get(res_type, reply.default())
     return response
 
 
@@ -45,10 +46,6 @@ def send_message(sender_id, response, response_type=None):
     else:
         bot.send_text_message(sender_id, str(response))
     return
-    # execute = {
-    #     'text': bot.send_text_message(sender_id, response),
-    #     'generic': bot.send_generic_message(sender_id, response),
-    # }.get(response_type, bot.send_text_message(sender_id, str(response)))
 
 
 @app.route('/', methods=['POST'])
