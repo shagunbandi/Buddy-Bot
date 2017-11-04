@@ -1,12 +1,13 @@
 import os, sys
 from flask import Flask, request
 from pymessenger import Bot
-from utils import wit_response
 
+from utils.utils import wit_response
+import utils.replies as reply
 
 app = Flask(__name__)
 
-PAGE_ACCESS_TOKEN = "EAADm8UzoVcoBALclzCszW4YBcklqUWhYY37fxL3CcZAL3gUNufq6ih1jKsNXLPBd8imqntwo2OkYAoRk7EaZBXRdrrE9yc20bHedvSdaNkKODKfDsbQgbjo8xF7bBZC3ZC1Apzjl8Nd7EFShuzZBWZCEwyKS2bT4qreW3xPYDxaaueJZCCZCxkaac7F2JU9s1LsZD"
+PAGE_ACCESS_TOKEN = "EAADm8UzoVcoBABtKAE7osTrvare7jZBNEyK1N98Po37fhDmRHVRgMZCJ0dgbmepNfQcsusTTE7X36dumxOZCivMxrXC0tKrpUHOExwV1UVjSfHjG7086CmaQGU4Sh3VFoRVMyqMFYxWZCVNXIA8ZBmZCX9qPZBuHNhbmwbtRKOmDvPZCBZCyprjZAJXpN7zEMaSgMZD"
 
 bot = Bot(PAGE_ACCESS_TOKEN)
 
@@ -14,7 +15,7 @@ bot = Bot(PAGE_ACCESS_TOKEN)
 @app.route('/', methods=['GET'])
 def verify():
     if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
-        if not request.args.get("hub.verify_token") == "mysecretpasswordisthissothatyoucannotguessitunlessyouseethecode":
+        if not request.args.get("hub.verify_token") == "mycode":
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
     return "Hello world", 200
@@ -25,24 +26,29 @@ def log(message):
     sys.stdout.flush()
 
 
-def get_response(messaging_text):
-    response = None
+def get_response_and_type(messaging_text):
     what, value = wit_response(messaging_text)
-    if value:
-        if what == 'get_my_location':
-            response = 'Cool, Now I know you are from {}'.format(value)
-        elif what == 'news':
-            response = 'Bringin News with the category {} right away'.format(value)
-        else:
-            response = 'Could not get that... sorry'
-    else:
-        if what == 'get_my_location':
-            response = 'I see, you want to tell me something about location, sorry please use simpler language'
-        elif what == 'news':
-            response = 'Bringing you news right away'
-        else:
-            response = 'Could not get that... sorry'
+
+    response = {
+        'get_my_location': reply.location(value),
+        'news': reply.news(value),
+        'general': reply.general(value)
+    }.get(what, ('Sorry', 'text'))
     return response
+
+
+def send_message(sender_id, response, response_type=None):
+    if response_type == 'text':
+        bot.send_text_message(sender_id, response)
+    elif response_type == 'generic':
+        bot.send_generic_message(sender_id, response)
+    else:
+        bot.send_text_message(sender_id, str(response))
+    return
+    # execute = {
+    #     'text': bot.send_text_message(sender_id, response),
+    #     'generic': bot.send_generic_message(sender_id, response),
+    # }.get(response_type, bot.send_text_message(sender_id, str(response)))
 
 
 @app.route('/', methods=['POST'])
@@ -57,13 +63,12 @@ def webhook():
                 recipient_id = msg_event['recipient']['id']
                 if msg_event.get('message'):
                     if 'text' in msg_event['message']:
-                        messaging_text = msg_event['message']['text']
+                        message_text = msg_event['message']['text']
                     else:
-                        messaging_text = 'no text'
+                        message_text = 'no text'
 
-                    response = get_response(messaging_text)
-
-                    bot.send_text_message(sender_id, response)
+                    response, response_type = get_response_and_type(message_text)
+                    send_message(sender_id, response, response_type)
 
     return "ok", 200
 
