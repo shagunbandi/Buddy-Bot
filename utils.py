@@ -4,7 +4,7 @@ import json
 access_token = 'XN6J7Y5N3ILXII66ARXNOWDEIOJ3JQ3R'
 
 client = Wit(access_token=access_token)
-message = 'Kharagpur is where I live'
+# message = 'Kharagpur is where I live'
 
 
 def pp_json(json_thing, sort=True, indents=4):
@@ -38,4 +38,4 @@ def wit_response(message):
     return what, value
 
 
-print(wit_response(message))
+# print(wit_response(message))
