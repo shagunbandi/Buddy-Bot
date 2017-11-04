@@ -21,7 +21,6 @@ djangorestframework==3.4.7
 docutils==0.13.1
 entrypoints==0.2.2
 enum34==1.1.6
-functools32==3.2.3.post2
 fuzzywuzzy==0.15.0
 gmail==0.6.3
 html5lib==0.9999999
