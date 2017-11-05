@@ -75,20 +75,22 @@ def send_message(sender_id, response, response_type=None):
 def webhook():
     data = request.get_json()
     log(data)
+    try:
+        if data['object'] == 'page':
+            for entry in data['entry']:
+                for msg_event in entry['messaging']:
+                    sender_id = msg_event['sender']['id']
+                    recipient_id = msg_event['recipient']['id']
+                    if msg_event.get('message'):
+                        if 'text' in msg_event['message']:
+                            message_text = msg_event['message']['text']
+                        else:
+                            message_text = 'no text'
 
-    if data['object'] == 'page':
-        for entry in data['entry']:
-            for msg_event in entry['messaging']:
-                sender_id = msg_event['sender']['id']
-                recipient_id = msg_event['recipient']['id']
-                if msg_event.get('message'):
-                    if 'text' in msg_event['message']:
-                        message_text = msg_event['message']['text']
-                    else:
-                        message_text = 'no text'
-
-                    response, response_type = get_response_and_type(message_text)
-                    send_message(sender_id, response, response_type)
+                        response, response_type = get_response_and_type(message_text)
+                        send_message(sender_id, response, response_type)
+    except:
+        pass
 
     return "ok", 200
 
