@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 PAGE_ACCESS_TOKEN = "EAADm8UzoVcoBABtKAE7osTrvare7jZBNEyK1N98Po37fhDmRHVRgMZCJ0dgbmepNfQcsusTTE7X36dumxOZCivMxrXC0tKrpUHOExwV1UVjSfHjG7086CmaQGU4Sh3VFoRVMyqMFYxWZCVNXIA8ZBmZCX9qPZBuHNhbmwbtRKOmDvPZCBZCyprjZAJXpN7zEMaSgMZD"
 
+
 bot = Bot(PAGE_ACCESS_TOKEN)
 
 
@@ -26,16 +27,38 @@ def log(message):
     sys.stdout.flush()
 
 
+def welcome_message():
+    message = """
+Welcome to the Buddy-Bot
+---
+It is easy to use messenger bot.
+you can search for news of many categories.
+just type in what you say and the NLP algorithm sitting behind it will do your tast.
+---
+Its currently in beta so you ay face few issues with it.
+for any queries drop an email at shagunamitbandi@gmail.com
+"""
+    return message, 'text'
+
+
 def get_response_and_type(messaging_text):
-    res_type, sub_type = wit_response(messaging_text)
-    print(res_type, sub_type)
-    # response = 'Sorry', 'text'
-    response = {
-        'location': reply.location('Kharagpur'),
-        'news': reply.news(sub_type),
-        'general': reply.general(None)
-    }.get(res_type, reply.default())
-    return response
+    # res_type, sub_type = wit_response(messaging_text)
+    entity_response = wit_response(messaging_text)
+
+    if entity_response['news'] is not None:
+        return reply.news(entity_response['news']['newstype'])
+    elif entity_response['greeting'] is not None:
+        return reply.greeting()
+    elif entity_response['thanks'] is not None:
+        return reply.thanks()
+    elif entity_response['bye'] is not None:
+        return reply.bye()
+    elif entity_response['okay'] is not None:
+        return reply.general()
+    elif entity_response['start'] is not None:
+        return welcome_message()
+    else:
+        return reply.default()
 
 
 def send_message(sender_id, response, response_type=None):

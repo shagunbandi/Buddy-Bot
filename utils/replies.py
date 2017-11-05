@@ -1,6 +1,7 @@
 import urllib.request
 import json
 import requests
+import random
 from .utils import get_json
 
 #
@@ -72,7 +73,7 @@ def news(value):
     except:
         pass
     response = get_json(response)
-    print(response)
+    # print(response)
     response = json.loads(response)
     all_articles = []
     if response['status'] == 'ok':
@@ -92,10 +93,29 @@ def news(value):
     return 'Sorry, cannot get new for {}'.format(value), 'text'
 
 
-def general(*args):
-    response = 'okay then'
-    return response, 'text'
+def greeting():
+    response = ['hi', 'hello', 'howdy', 'bonjour', 'hey', 'hi-ya']
+    random_num = random.randint(0, len(response)-1)
+    return response[random_num], 'text'
+
+
+def thanks():
+    response = ["welcome", "you're welcome", "my pleasure", "don't mention", "no problem", "it's no bother", "that's all right", 'no problem']
+    random_num = random.randint(0, len(response) - 1)
+    return response[random_num], 'text'
+
+
+def bye():
+    response = ["bye", "bye-bye", "farewell"]
+    random_num = random.randint(0, len(response) - 1)
+    return response[random_num], 'text'
+
+
+def general():
+    response = ["okay then", "hmm", "okay fine", "okey dokey"]
+    random_num = random.randint(0, len(response) - 1)
+    return response[random_num], 'text'
 
 
 def default():
-    return 'Sorry', 'text'
+    return 'Sorry, I could not get that', 'text'

@@ -18,25 +18,86 @@ def wit_response(message):
     # print(get_json(response))
     type = None
     sub_type = None
+
+    entity_response = {
+        'news': None,
+        'greeting': None,
+        'thanks': None,
+        'bye': None,
+        'okay': None,
+        'start': None
+    }
+
+    if response['_text'] == '/start':
+        entity_response['start'] = True
+        return entity_response
+
     entities = response['entities']
+
+    print(get_json(response))
+
     if len(entities):
-        print('len satisfied')
-        print(get_json(entities))
-        # type = entities['type'][0]['value']
-        # sub_type = entities['newstype'][0]['value']
+        # print(get_json(entities))
+
+        # For Type
         try:
             type = entities['type'][0]['value']
-            print('type found {}'.format(type))
+
+            # For News Type
+
             if type == 'news':
                 try:
                     sub_type = entities['newstype'][0]['value']
-                    print('subtype found {}'.format(sub_type))
+                    entity_response['news'] = {
+                        'newstype_found': True,
+                        'newstype': sub_type
+                    }
                 except:
-                    pass
+                    entity_response['news'] = {
+                        'newstype_found': False,
+                        'newstype': None
+                    }
+                return entity_response
+
+            # For Ok
+
+            if type == 'okay':
+                entity_response['okay'] = True
+                return entity_response
+
         except:
-            print('yaha')
             pass
-    return type, sub_type
+
+        # For Greetings
+        try:
+            greeting = entities['greetings'][0]['value']
+            if greeting:
+                entity_response['greeting'] = True
+                return entity_response
+        except:
+            pass
+
+        # For Thanks
+        try:
+            thanks = entities['thanks'][0]['value']
+            if thanks:
+                entity_response['thanks'] = True
+                return entity_response
+        except:
+            pass
+
+        # For Bye
+        try:
+            bye = entities['bye'][0]['value']
+            if bye:
+                entity_response['bye'] = True
+                return entity_response
+        except:
+            pass
+
+
+
+    return entity_response
 
 
 # message = 'Show me sports news'
